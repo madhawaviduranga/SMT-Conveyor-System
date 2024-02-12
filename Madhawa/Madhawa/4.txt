@@ -1,0 +1,33 @@
+#include <AccelStepper.h>
+const int stepsPerRevolution = 200;
+AccelStepper stepper(1, 8, 9);
+
+void setup() {
+  // Set the maximum speed and acceleration values (you can adjust these)
+  stepper.setMaxSpeed(1000);    // Maximum steps per second
+  stepper.setAcceleration(500); // Acceleration in steps per second^2
+}
+
+void loop() {
+  // Rotate the motor one full revolution in one direction
+  stepper.moveTo(stepsPerRevolution);
+
+  // Check if the stepper has reached the target position
+  while (stepper.distanceToGo() != 0) {
+    stepper.run();
+  }
+
+  // Pause for a moment before reversing direction
+  delay(1000);
+
+  // Rotate the motor one full revolution in the opposite direction
+  stepper.moveTo(-stepsPerRevolution);
+
+  // Check if the stepper has reached the target position
+  while (stepper.distanceToGo() != 0) {
+    stepper.run();
+  }
+
+  // Pause for a moment before repeating
+  delay(1000);
+}

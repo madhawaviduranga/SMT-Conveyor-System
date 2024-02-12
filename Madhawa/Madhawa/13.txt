@@ -1,0 +1,105 @@
+#include <AccelStepper.h>
+const int stepsPerRevolution = 200;
+
+// Create an AccelStepper object (1 motor, using pins 8 for step and 9 for direction)
+AccelStepper stepper(1, 8, 9);
+const int btnForwardPin = 2;   // Connect the forward button to pin 2
+const int btnBackwardPin = 3;  // Connect the backward button to pin 3
+const int btnFeedPin = 4;
+const int btnautoMode = 5;
+
+const int FLimitPin = 10;
+const int DLimitPin = 11;
+const int sensorInPin = 12;
+const int sensorOutPin = 13;
+
+void setup() {
+  // Set up the button pins as inputs with pull-up resistors
+  pinMode(btnForwardPin, INPUT);
+  pinMode(btnBackwardPin, INPUT);
+  pinMode(btnFeedPin, INPUT);
+  pinMode(btnautoMode, INPUT);
+  Serial.begin(9600);
+
+  pinMode(FLimitPin, INPUT);
+  pinMode(DLimitPin, INPUT);
+
+  pinMode(sensorInPin, INPUT);
+  pinMode(sensorOutPin, INPUT);
+
+  // Set the maximum speed and acceleration values (you can adjust these)
+  stepper.setMaxSpeed(1000);        // Maximum steps per second
+  stepper.setAcceleration(100000);  // Acceleration in steps per second^2 1000000
+}
+
+void loop() {
+  // Read the state of the forward and backward buttons
+  int buttonForwardState = digitalRead(btnForwardPin);
+  int buttonBackwardState = digitalRead(btnBackwardPin);
+  int autoModeState = digitalRead(btnautoMode);
+  int sensorInState = digitalRead(sensorInPin);
+  int sensorOutState = digitalRead(sensorOutPin);
+  int FeedState = digitalRead(btnFeedPin);
+
+  int FlimitState = digitalRead(FLimitPin);
+  int DlimitState = digitalRead(DLimitPin);
+
+  FlimitState = false;  //false true
+  DlimitState = false;  //false true
+
+
+  sensorOutState = LOW;
+
+  // if (sensorInState) {
+  //   Serial.println(sensorInState);
+  //   delay(1);
+  // } else {
+  //   Serial.println(sensorInState);
+  //   delay(1);
+  // }
+
+  //bool sensorIn = false;  //false true
+  //bool sensorOut = false;
+
+  if (autoModeState == HIGH) {
+
+    if (sensorInState == LOW && sensorOutState == HIGH) {
+      stepper.move(1);
+      //stepper.moveTo(400);
+      stepper.runToPosition();
+    }
+
+    if (sensorInState == HIGH && sensorOutState == LOW) {
+      stepper.move(1);
+      //stepper.moveTo(800);
+      stepper.runToPosition();
+    }
+  } else {
+
+    if (buttonForwardState == HIGH) {
+      // Move the motor forward one step
+      if (FlimitState) {
+        stepper.stop();
+        return;
+      }
+      stepper.move(1);
+      stepper.runToPosition();
+    }
+
+    // Check if the backward button is pressed
+    if (buttonBackwardState == HIGH) {
+      // Move the motor backward one step
+      if (DlimitState) {
+        stepper.stop();
+        return;
+      }
+      stepper.move(-1);
+      stepper.runToPosition();
+    }
+
+    if (FeedState) {
+      stepper.move(1);
+      stepper.runToPosition();
+    }
+  }
+}

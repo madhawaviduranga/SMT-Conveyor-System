@@ -1,0 +1,41 @@
+#include <Stepper.h>
+
+// Define the number of steps per revolution
+const int stepsPerRevolution = 200;
+
+// Define the buttons and their pins
+const int buttonForwardPin = 2;  // Connect the forward button to pin 2
+const int buttonBackwardPin = 3; // Connect the backward button to pin 3
+
+// Create a Stepper object
+Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
+
+void setup() {
+  // Set up button pins as inputs
+  pinMode(buttonForwardPin, INPUT_PULLUP);
+  pinMode(buttonBackwardPin, INPUT_PULLUP);
+
+  // Set motor speed (you can adjust this value)
+  myStepper.setSpeed(100);
+}
+
+void loop() {
+  // Read the state of the buttons
+  //int buttonForwardState = digitalRead(buttonForwardPin);
+  int buttonBackwardState = digitalRead(buttonBackwardPin);
+
+  int buttonForwardState = LOW;
+  //int buttonBackwardState = LOW;
+
+  // If the forward button is pressed, move the motor forward
+  if (buttonForwardState == LOW) {
+    myStepper.step(1); // Adjust the number of steps as needed
+    delay(10);         // Add a small delay for button debounce
+  }
+
+  // If the backward button is pressed, move the motor backward
+  if (buttonBackwardState == LOW) {
+    myStepper.step(-1); // Adjust the number of steps as needed
+    delay(10);          // Add a small delay for button debounce
+  }
+}

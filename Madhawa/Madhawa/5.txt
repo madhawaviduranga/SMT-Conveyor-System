@@ -1,0 +1,31 @@
+#include <AccelStepper.h>
+const int stepsPerRevolution = 200;
+AccelStepper stepper(1, 8, 9);
+
+
+
+void setup() {
+  stepper.setMaxSpeed(1000);     // Maximum steps per second
+  stepper.setAcceleration(500);  // Acceleration in steps per second^2
+}
+
+void loop() {
+
+  int buttonForwardState = LOW;
+  int buttonBackwardState = HIGH;
+
+  stepper.moveTo(stepsPerRevolution);
+  if (buttonForwardState == LOW) {
+    while (stepper.distanceToGo() != 0) {
+      stepper.run();
+    }
+  }
+ 
+  // If the backward button is pressed, move the motor backward
+  stepper.moveTo(-stepsPerRevolution);
+  if (buttonBackwardState == LOW) {
+    while (stepper.distanceToGo() != 0) {
+      stepper.run();
+    }
+  }
+}

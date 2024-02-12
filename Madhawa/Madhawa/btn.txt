@@ -1,0 +1,74 @@
+#include <AccelStepper.h>
+
+// Define the number of steps per revolution of your motor
+const int stepsPerRevolution = 200;
+
+// Create an AccelStepper object (1 motor, using pins 8 for step and 9 for direction)
+AccelStepper stepper(1, 8, 9);
+
+// Define the pins for the forward and backward buttons
+const int buttonForwardPin = 2;   // Connect the forward button to pin 2
+const int buttonBackwardPin = 3;  // Connect the backward button to pin 3
+const int autoMode = 4;
+
+const int sensorInPin = 2;
+const int sensorOutPin = 2;
+
+void setup() {
+  // Set up the button pins as inputs with pull-up resistors
+  pinMode(buttonForwardPin, INPUT);
+  pinMode(buttonBackwardPin, INPUT);
+  pinMode(autoMode, INPUT);
+
+  pinMode(sensorInPin, INPUT_PULLUP);
+  pinMode(sensorOutPin, INPUT_PULLUP);
+
+  // Set the maximum speed and acceleration values (you can adjust these)
+  stepper.setMaxSpeed(1000);        // Maximum steps per second
+  stepper.setAcceleration(100000);  // Acceleration in steps per second^2 1000000
+}
+
+void loop() {
+  // Read the state of the forward and backward buttons
+  int buttonForwardState = digitalRead(buttonForwardPin);
+  int buttonBackwardState = digitalRead(buttonBackwardPin);
+  //bool  autoModeState = digitalRead(autoMode);
+
+  //buttonForwardState = HIGH;
+  //buttonBackwardState = LOW;
+  bool autoModeState = false;
+
+  bool sensorIn = false;  //false true
+  bool sensorOut = false;
+
+  if (autoModeState) {
+    if (sensorIn) {
+      //stepper.move(1);
+      stepper.moveTo(400);
+      stepper.runToPosition();
+      sensorOut = false;
+    }
+
+    if (sensorOut) {
+      //stepper.move(1);
+      stepper.moveTo(800);
+      stepper.runToPosition();
+      sensorOut = false;
+    }
+  }
+
+
+  // Check if the forward button is pressed
+  if (buttonForwardState == HIGH) {
+    // Move the motor forward one step
+    stepper.move(1);
+    stepper.runToPosition();
+  } 
+
+  // Check if the backward button is pressed
+  if (buttonBackwardState == HIGH) {
+    // Move the motor backward one step
+    stepper.move(-1);
+    stepper.runToPosition();
+  } 
+}

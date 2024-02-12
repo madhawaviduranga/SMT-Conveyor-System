@@ -1,0 +1,16 @@
+#include <AccelStepper.h>
+
+AccelStepper stepper(1, 8, 9);
+
+void setup() {
+  stepper.setMaxSpeed(200);      // Maximum steps per second
+  stepper.setAcceleration(100);  // Acceleration in steps per second^2
+  stepper.moveTo(200);
+}
+
+void loop() {
+  while (stepper.distanceToGo() != 0) {
+    stepper.run();
+  }
+  delay(1000);
+}

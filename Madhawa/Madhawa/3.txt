@@ -1,0 +1,55 @@
+#include <Stepper.h>
+
+// Define the number of steps per revolution
+const int stepsPerRevolution = 200;
+
+// Define the pin for the toggle button
+const int toggleButtonPin = 2; // Connect the toggle button to pin 2
+
+// Create a Stepper object
+Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
+
+// Variables to track the motor state and button state
+boolean motorForward = false;
+boolean motorBackward = false;
+boolean buttonState = false;
+boolean lastButtonState = false;
+
+void setup() {
+  // Set up the toggle button pin as an input
+  pinMode(toggleButtonPin, INPUT_PULLUP);
+
+  // Set motor speed (you can adjust this value)
+  myStepper.setSpeed(100);
+}
+
+void loop() {
+  // Read the state of the toggle button
+  buttonState = digitalRead(toggleButtonPin);
+
+  // Check if the button state has changed
+  if (buttonState != lastButtonState) {
+    // If the button is pressed (LOW state), toggle motor direction
+    if (buttonState == LOW) {
+      if (!motorForward && !motorBackward) {
+        motorForward = true;
+      } else if (motorForward) {
+        motorForward = false;
+        motorBackward = true;
+      } else if (motorBackward) {
+        motorBackward = false;
+        motorForward = true;
+      }
+    }
+  }
+
+  // Update the motor direction based on the toggle button state
+  if (motorForward) {
+    myStepper.step(1); // Adjust the number of steps as needed for forward motion
+  } else if (motorBackward) {
+    myStepper.step(-1); // Adjust the number of steps as needed for backward motion
+  }
+
+  // Save the current button state for the next iteration
+  lastButtonState = buttonState;
+}

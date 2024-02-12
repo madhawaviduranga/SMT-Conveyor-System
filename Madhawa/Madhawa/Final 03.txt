@@ -1,0 +1,149 @@
+#include <AccelStepper.h>
+const int stepsPerRevolution = 200;
+
+// Create an AccelStepper object (1 motor, using pins 8 for step and 9 for direction)
+AccelStepper stepper1(1, 10, 11);  // clk+ pin 10
+AccelStepper stepper2(1, 12, 13);  //clk+ pin 12
+
+const int btnautoMode = 2;     // Connect the Auto mode button to pin 2
+const int btnFeedPin = 3;      // Connect the Feed button to pin 3
+const int btnForwardPin = 4;   // Connect the forward button to pin 4
+const int btnBackwardPin = 5;  // Connect the backward button to pin 5
+
+//Smema IN
+const int SignalIn1 = 6;    //
+const int SignalROut1 = 0;  // Relay Out signal 1 pin 7
+//Smema Out
+const int SignalIn2 = 7;    //
+const int SignalROut2 = 1;  // Relay Out signal 1 pin 7
+
+// const int BLimitPin = 8;  //conveyor width Backward limit pin 9
+const int FLimitPin = 9;  //conveyor width Forward limit pin 8
+
+const int PsensorPin = 8;  // proximity sensor 1 pin 12
+
+void setup() {
+  // Set up the button pins as inputs with pull-up resistors
+  pinMode(btnForwardPin, INPUT);
+  pinMode(btnBackwardPin, INPUT);
+  pinMode(btnFeedPin, INPUT);
+  pinMode(btnautoMode, INPUT);
+
+  Serial.begin(9600);
+
+  pinMode(FLimitPin, INPUT);
+  // pinMode(BLimitPin, INPUT);
+
+  pinMode(PsensorPin, INPUT);
+
+  //Smema IN
+  pinMode(SignalIn1, INPUT);
+  pinMode(SignalROut1, OUTPUT);
+  //Smema Out
+  pinMode(SignalIn2, INPUT);
+  pinMode(SignalROut2, OUTPUT);
+
+  // Set the maximum speed and acceleration values (you can adjust these)
+  stepper1.setMaxSpeed(10000);  // Maximum steps per second
+  stepper2.setMaxSpeed(10000);  // Maximum steps per second
+  // stepper1.setSpeed(45);
+  stepper1.setAcceleration(10000);  // Acceleration in steps per second^2 1000000
+  stepper2.setAcceleration(10000);  // Acceleration in steps per second^2 1000000
+}
+
+void loop() {
+  // Read the state of the forward and backward buttons
+  int buttonForwardState = digitalRead(btnForwardPin);
+  int buttonBackwardState = digitalRead(btnBackwardPin);
+  int autoModeState = digitalRead(btnautoMode);
+  int FeedState = digitalRead(btnFeedPin);
+
+  int Psensor1State = digitalRead(PsensorPin);
+
+  int FlimitState = digitalRead(FLimitPin);
+  // int BlimitState = digitalRead(BLimitPin);
+
+
+  // =================================================================================================
+  // =================================== conveyor width adjustment ===================================
+  // =================================================================================================
+
+  if (buttonForwardState == HIGH) {
+    // Move the motor forward one step
+    Serial.println("forward");
+    if (FlimitState) {
+      stepper2.stop();
+      return;
+    }
+    stepper2.move(1);
+    stepper2.runToPosition();
+  }
+
+  // Check if the backward button is pressed
+  if (buttonBackwardState == HIGH) {
+    // Move the motor backward one step
+    Serial.println("backward");
+    if (true) {
+      stepper2.stop();
+      return;
+    }
+    stepper2.move(-1);
+    stepper2.runToPosition();
+  }
+  // =================================================================================================
+  // =================================== conveyor width adjustment ===================================
+  // =================================================================================================
+
+
+  //Smema IN
+  int SignalIn1State = digitalRead(SignalIn1);
+  digitalWrite(SignalROut1, LOW);
+  //Smema IN
+  int SignalIn2State = digitalRead(SignalIn2);
+  digitalWrite(SignalROut2, HIGH);
+
+  // =================================================================================================
+  // =================================== conveyor belt rotation Auto ===================================
+  // =================================================================================================
+  // autoModeState = HIGH;
+  // Psensor1State = LOW;
+
+  if (autoModeState == HIGH) {
+
+    //Before to Conveyor
+    if (SignalIn1State == HIGH && Psensor1State == LOW) {
+      stepper1.move(1);
+      //stepper1.moveTo(400);
+      stepper1.runToPosition();
+    } else {
+      stepper1.stop();
+    }
+
+    delay(1000);
+    delay(1000);
+
+    //Conveyor to Next
+    if (SignalIn2State == HIGH && Psensor1State == HIGH) {
+      stepper1.move(1);
+      //stepper1.moveTo(400);
+      stepper1.runToPosition();
+    } else {
+      stepper1.stop();
+    }
+
+  } else {
+
+    if (FeedState && SignalIn2State == HIGH && Psensor1State == HIGH) {
+      Serial.println("Feed");
+      stepper1.move(1);
+      //stepper1.move(1000);
+      stepper1.runToPosition();
+    } else {
+      stepper1.stop();
+    }
+  }
+
+  // =================================================================================================
+  // =================================== conveyor belt rotation Auto =================================
+  // =================================================================================================
+}
